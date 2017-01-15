@@ -66,7 +66,7 @@ augroup vimrc_autocmds
 	ctermbg=DarkGrey guibg=Black
 	autocmd FileType python match Excess /\%120v.*/
 	autocmd FileType python set nowrap
-	augroup END
+augroup END
 
 " install Powerline 
 Bundle 'Lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}
@@ -138,7 +138,6 @@ set autochdir
 "
 " I'm prefer spaces to tabs
 set tabstop=4
-set shiftwidth=4
 set expandtab
 "
 " more subtle popup colors
@@ -149,4 +148,74 @@ endif
 " syntex color
 syntax on
 colorscheme Tomorrow-Night-Bright
+
+" configure expanding of tabs for various file types
+" au BufRead,BufNewFile *.py set expandtab
+" au BufRead,BufNewFile *.c set noexpandtab
+" au BufRead,BufNewFile *.h set noexpandtab
+" au BufRead,BufNewFile Makefile* set noexpandtab
+"
+" "
+" --------------------------------------------------------------------------------
+"  " configure editor with tabs and nice stuff...
+"  "
+"  --------------------------------------------------------------------------------
+
+set textwidth=79  " lines longer than 79 columns will be broken
+set shiftwidth=4  " operation >> indents 4 columns; << unindents 4 columns
+set tabstop=4     " a hard TAB displays as 4 columns
+set expandtab     " insert spaces when hitting TABs
+set softtabstop=4 " insert/delete 4 spaces when hitting a TAB/BACKSPACE
+set shiftround    " round indent to multiple of 'shiftwidth'
+set autoindent    " align the new line indent with the previous line
+
+set backspace=indent,eol,start
+
+set ruler                           " show line and column number
+set showcmd             " show (partial) command in status line
+set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
+set list
+
+autocmd BufWritePost *.py call Flake8()
+au BufNewFile,BufRead *.py
+    \ set tabstop=4
+    \ set softtabstop=4
+    \ set shiftwidth=4
+    \ set textwidth=79
+    \ set expandtab
+    \ set autoindent
+    \ set fileformat=unix
+
+" avoid extraneous whitespace We can have VIM flag that for us so that it’s
+" easy to spot – and then remove.
+au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
+
+" you should be using UTF8 when working with Python, especially if you’re
+" working with Python 3
+set encoding=utf-8
+
+" Auto-Indentation
+Plugin 'vim-scripts/indentpython.vim'
+
+" Auto-complete
+Bundle 'Valloric/YouCompleteMe'
+let g:ycm_autoclose_preview_window_after_completion=1
+map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
+
+"python with virtualenv support
+py << EOF
+import os
+import sys
+if 'VIRTUAL_ENV' in os.environ:
+    project_base_dir = os.environ['VIRTUAL_ENV']
+    activate_this = os.path.join(project_base_dir, 'bin/activate_this.py')
+    execfile(activate_this, dict(__file__=activate_this))
+EOF
+
+
+" for full stack dev
+au BufNewFile,BufRead *.js, *.html, *.css
+    \ set tabstop=2
+    \ set softtabstop=2
+    \ set shiftwidth=2
 
